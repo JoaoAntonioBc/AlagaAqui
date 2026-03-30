@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento Alagamentos - Sorocaba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Alternar menu" aria-expanded="false">☰</button>
+    <div class="wrapper">
+        <nav id="main-sidebar" class="sidebar closed">
+            <div id="status-notification" class="logo-container status-box alert-danger"> 
+                <div class="status-content">
+                    <i id="status-icon" class="fa-solid fa-triangle-exclamation fa-2x"></i>
+                    <h3 id="status-text">EMERGÊNCIA</h3>
+                </div>
+                <p id="status-desc" class="status-details">Possibilidade de transbordamento do Rio Sorocaba.</p>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i> <span>Dados Metereologicos</span></a></li>
+                <li><a href="#" class="nav-item" data-target="volume-detalhado"><i class="fa-solid fa-circle-info"></i> <span>Informações</span></a></li>
+                <li><a href="#" class="nav-item" data-target="mapa"><i class="fa-solid fa-map-location-dot"></i> <span>Mapa em Tempo Real</span></a></li>
+                <li><a href="#" class="nav-item" data-target="historico"><i class="fa-solid fa-users"></i> <span>Comunidade</span></a></li>
+                <li><a href="#" class="nav-item" data-target="pontos-criticos"><i class="fa-solid fa-triangle-exclamation"></i> <span>Pontos Críticos</span></a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            
+            <div id="page-dashboard" class="page-content active">
+                <header>
+                    <h1 style="color: white;">Alaga Aqui Sorocaba 🌧️</h1>
+                    <p style="color: white;">Status em tempo real</p>
+                </header>
+
+                <div class="dashboard-grid">
+                    
+                    <div class="chart-card flood-gauge-card">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-person-rays"></i> Medidor de Risco (Rua)</h3>
+                        </div>
+                       <div class="gauge-body" style="display: flex; align-items: flex-start; gap: 20px; padding: 20px;">
+    
+    <div class="gauge-visual-wrapper" style="position: relative; width: 100%; height: 320px; background: #f9f9f9; border-radius: 10px; border: 1px solid #eee;">
+        
+        <svg width="100%" height="320" style="position: absolute; top: 0; left: 0; z-index: 0;">
+            <line x1="5%" y1="40" x2="65%" y2="40" stroke="#ccc" stroke-dasharray="4"/>
+            <text x="68%" y="45" fill="#666" font-size="12" font-weight="bold">CABEÇA (1,70 m)</text>
+            
+            <line x1="5%" y1="110" x2="65%" y2="110" stroke="#ccc" stroke-dasharray="4"/>
+            <text x="68%" y="115" fill="#666" font-size="11">PEITO (1,30 m)</text>
+            
+            <line x1="5%" y1="230" x2="65%" y2="230" stroke="#ccc" stroke-dasharray="4"/>
+            <text x="68%" y="235" fill="#666" font-size="11">JOELHO (0,50 m)</text>
+            
+            <line x1="5%" y1="290" x2="65%" y2="290" stroke="#ccc" stroke-dasharray="4"/>
+            <text x="68%" y="295" fill="#666" font-size="11">PÉ (0,10 m)</text>
+        </svg>
+
+        <img src="boneco.png" id="boneco-img" alt="Boneco" style="position: absolute; bottom: 20px; left: 35%; transform: translateX(-50%); height: 280px; z-index: 2;">
+        
+        <div id="water-level" class="water-layer" style="position: absolute; bottom: 20px; left: 10%; width: 50%; background: rgba(52, 152, 219, 0.6); height: 0px; transition: height 1.5s ease; z-index: 1; border-radius: 0 0 5px 5px;"></div>
+    </div>
+
+    <div class="gauge-info" style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 150px;">
+        <div class="depth-readout" style="margin-bottom: 10px;">
+            <span id="depth-value" style="font-size: 3.5rem; font-weight: bold;">0.0</span><span class="unit" style="font-size: 1.5rem; color: #777;">m</span>
+        </div>
+        <p id="risk-description" class="risk-text text-success" style="font-weight: bold; text-transform: uppercase;">Nível Seguro</p>
+        <p style="font-size: 0.85rem; color: #777; margin-bottom: 20px;">Situação normalizada na via.</p>
+        <button onclick="simularAlagamento()" class="btn-simulate" style="padding: 12px; background: #F89737; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Simular Chuva</button>
+    </div>
+</div>
+                    </div>
+
+                    <div class="chart-card river-gauge-card">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-water"></i> Leito do Rio</h3>
+                        </div>
+                        <div class="gauge-body">
+                            <div class="river-visual">
+                                <div class="river-bank left"></div>
+                                <div class="river-bank right"></div>
+                                <div id="river-water-level" class="river-water"></div>
+                                <div class="flood-line"><span>TRANSBORDAMENTO</span></div>
+                            </div>
+                            <div class="gauge-info">
+                                <div class="depth-readout">
+                                    <span id="river-depth-value">1.2</span><span class="unit">m</span>
+                                </div>
+                                <p id="river-status" class="risk-text text-success">Nível Normal</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card weather-card">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-cloud-showers-heavy"></i> Previsão Próximas 24h</h3>
+                        </div>
+                        <div class="card-body-content">
+                            <div class="weather-info">
+                                <div class="precip-readout">
+                                    <span class="precip-value">85</span><span class="unit">mm</span>
+                                </div>
+                                <p class="risk-text text-danger">Chuva muito forte prevista.</p>
+                            </div>
+                            <div class="forecast-details skeleton-placeholder">
+                                <p>Gráfico de barras de hora em hora...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card river-gauge-card">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-chart-bar"></i> Acumulado Mensal</h3>
+                        </div>
+                        <div class="card-body-content">
+                            <div class="acumulado-info">
+                                <p>Volume de chuva em Sorocaba</p>
+                                <div class="depth-readout text-info">
+                                    <span class="depth-value">150</span><span class="unit">mm</span>
+                                </div>
+                                <p class="risk-text text-warning">Próximo à média histórica (160mm).</p>
+                            </div>
+                            <div class="chart-placeholder skeleton-placeholder">
+                                <p>Gráfico de linha/barras aqui...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card legend-item" style="border: 2px solid #dc3545 !important;">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-info-circle"></i> Legenda de Níveis</h3>
+                        </div>
+                        <div class="card-body-content">
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <li style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <span style="height: 12px; width: 12px; border-radius: 50%; background: #28a745; margin-right: 10px;"></span>
+                                    <strong>Pé (0.10m):</strong> Nível de atenção.
+                                </li>
+                                <li style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <span style="height: 12px; width: 12px; border-radius: 50%; background: #ffc107; margin-right: 10px;"></span>
+                                    <strong>Joelho (0.50m):</strong> Risco moderado.
+                                </li>
+                                <li style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <span style="height: 12px; width: 12px; border-radius: 50%; background: #dc3545; margin-right: 10px;"></span>
+                                    <strong>Cabeça (1.70m):</strong> Risco letal.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="chart-card contacts-card">
+                        <div class="gauge-header">
+                            <h3><i class="fa-solid fa-phone-flip"></i> Contatos de Emergência</h3>
+                        </div>
+                        <div class="card-body-content">
+                            <ul class="contacts-list">
+                                <li><strong>Bombeiros:</strong> <a href="tel:193">193</a></li>
+                                <li><strong>Defesa Civil:</strong> <a href="tel:199">199</a></li>
+                                <li><strong>Prefeitura (Geral):</strong> <a href="tel:156">156</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div> 
+            </div>
+
+            <div id="page-volume-detalhado" class="page-content" style="display: none;">
+                <header>
+                    <h1 style="color: white; margin-bottom: 20px;">Como funciona a medição?</h1>
+                </header>
+                <div class="chart-card explicativo-container" style="text-align: center; padding: 20px;">
+                    <img src="imagem-explicativa.png" alt="Explicação do Volume de Água" style="max-width: 100%; height: auto; border-radius: 8px;">
+                    
+                    <div class="texto-ajuda" style="margin-top: 20px; text-align: left; color: #333;">
+                        <h3>Guia de Referência</h3>
+                        <p>O sistema converte dados brutos de sensores milimétricos em uma visualização humana intuitiva:</p>
+                        <ul style="margin-top: 10px; line-height: 1.6;">
+                            <li><strong>Sensores e Pluviômetros:</strong> Registram a precipitação real em Sorocaba.</li>
+                            <li><strong>Processamento:</strong> O back-end converte mm em metros de profundidade.</li>
+                            <li><strong>Níveis Semânticos:</strong> Cores (Verde, Amarelo, Vermelho) indicam a urgência e o risco.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-historico" class="page-content page-noticias" style="display: none;">
+
+                <div class="container">
+                    <!-- Cards de Status de Sorocaba -->
+                    <div class="status-grid">
+                        <div class="stat-card">
+                            <h3>🌊 Nível do Rio</h3>
+                            <div class="value">0,85m (Normal)</div>
+                        </div>
+                        <div class="stat-card" style="border-color: var(--danger);">
+                            <h3>🚫 Pontos Interditados</h3>
+                            <div class="value">2 Locais</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>☔ Previsão Próximas 24h</h3>
+                            <div class="value">25mm (Forte)</div>
+                        </div>
+                    </div>
+
+                    <div class="main-layout">
+                        <!-- Coluna Central: Vias Monitoradas -->
+                        <section>
+                            <div class="section-box">
+                                <div class="box-header">📍 Monitoramento das Principais Vias</div>
+                                <div style="overflow-x: auto;">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Localização</th>
+                                                <th>Estado</th>
+                                                <th>Última Atualização</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabela-corpo-noticias">
+                                            <!-- Preenchido pelo Script -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Legenda de Cores para o Usuário -->
+                                <div style="padding: 15px; background: #fdfaf6; border-top: 1px solid #eee; display: flex; gap: 15px; flex-wrap: wrap;">
+                                    <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 10px; height: 10px; background: #15803d; border-radius: 50%;"></span> <b>Livre:</b> Normal
+                                    </div>
+                                    <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 10px; height: 10px; background: #d97706; border-radius: 50%;"></span> <b>Atenção:</b> Água na pista
+                                    </div>
+                                    <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 10px; height: 10px; background: #b91c1c; border-radius: 50%;"></span> <b>Crítico:</b> Interditado
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section-box">
+                                <div class="box-header">📰 Notícias e Comunicados SAAE/Defesa Civil</div>
+                                <div id="feed-noticias-noticias">
+                                    <div class="news-item">
+                                        <small>HÁ 15 MINUTOS</small>
+                                        <p>Equipes do SAAE Sorocaba iniciam bombeamento emergencial no Jardim Abaeté.</p>
+                                    </div>
+                                    <div class="news-item">
+                                        <small>HOJE, 11:20</small>
+                                        <p>Aviso: Risco de transbordamento do Rio Sorocaba nas próximas 3 horas devido à chuva constante.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Coluna Lateral: Envio de Reporte -->
+                        <aside>
+                            <div class="report-box">
+                                <h3>⚠ Novo Reporte</h3>
+                                <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 10px;">Informe a situação atual de sua rua.</p>
+                                
+                                <label style="font-size: 0.8rem;">Onde é o problema?</label>
+                                <input type="text" id="input-local-noticias" placeholder="Ex: Av. Dom Aguirre">
+                                
+                                <label style="font-size: 0.8rem;">Qual o estado da via?</label>
+                                <select id="select-gravidade-noticias">
+                                    <option value="success">Vias Liberadas</option>
+                                    <option value="warning">Atenção (Água Subindo)</option>
+                                    <option value="danger">Crítico (Intransitável)</option>
+                                </select>
+                                
+                                <button class="btn-submit" onclick="adicionarReporteNoticias()">PUBLICAR ALERTA</button>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+
+                <!-- Barra de Emergência (Atalhos de Ligação) -->
+                <div class="panic-bar">
+                    <a href="tel:193" class="panic-link" style="background: #dc3545;">📞 BOMBEIROS (193)</a>
+                    <a href="tel:199" class="panic-link" style="background: var(--primary-orange);">📞 DEFESA CIVIL (199)</a>
+                </div>
+            </div>
+
+            <div id="page-mapa" class="page-content" style="display: none;">
+                <header>
+                    <h1 style="color: white;">Mapa em Tempo Real</h1>
+                    <p style="color: white;">Visualização das áreas afetadas</p>
+                </header>
+                <div class="chart-card" style="text-align: center; padding: 50px;">
+                    <p>Mapa interativo em desenvolvimento...</p>
+                </div>
+            </div>
+
+            <div id="page-pontos-criticos" class="page-content" style="display: none;">
+                <header>
+                    <h1 style="color: white;">Pontos Críticos</h1>
+                    <p style="color: white;">Locais de maior risco</p>
+                </header>
+                <div class="chart-card" style="text-align: center; padding: 50px;">
+                    <p>Lista de pontos críticos em desenvolvimento...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

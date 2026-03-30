@@ -1,0 +1,920 @@
+/* --- CONFIGURAÇÕES GERAIS E VARIÁVEIS --- */
+:root {
+    --bg-main: #B58D70;      /* Marrom de fundo */
+    --bg-sidebar: #FFFFFF;    /* Branco da sidebar */
+    --accent-color: #F89737;  /* Laranja dos botões */
+    --logo-border: #8A1B29;   /* Marrom escuro do alerta */
+    --legend-border: #FF0000; /* Vermelho da legenda */
+    --text-dark: #333333;
+    --text-light: #FFFFFF;
+    /* Cores do painel de notícias */
+    --bg-body: #d2b48c;       /* Bege/Marrom do fundo */
+    --bg-card: #ffffff;       /* Branco dos cards */
+    --primary-orange: #f39233; /* Laranja de destaque */
+    --text-main: #4a3f35;     /* Marrom escuro para textos */
+    --danger: #b91c1c;
+    --warning: #d97706;
+    --success: #15803d;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto; /* Permite rolar quando conteúdo for maior */
+    background-color: var(--bg-main); /* garante fundo marrom em todo o corpo */
+}
+
+/* --- CORREÇÃO DE ALINHAMENTO DA SIDEBAR (Wrapper e Sidebar) --- */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px; /* largura original do menu */
+    min-width: 250px;
+    height: 100vh; /* Sidebar ocupa toda a altura do viewport */
+    position: fixed; /* fixa a barra na lateral do PC */
+    top: 0;
+    left: 0;
+    overflow-y: auto; /* habilita scroll se o menu ficar maior que a altura */
+    background-color: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    padding: 25px 0 20px 0;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    z-index: 10;
+    transition: width 0.25s ease, transform 0.25s ease;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar.collapsed .nav-links a {
+    text-align: center;
+    padding: 12px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .nav-links a span {
+    display: none;
+}
+
+.sidebar-toggle {
+    display: none; /* por padrão escondido em desktop */
+    position: fixed;
+    top: 20px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-color);
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 100;
+}
+
+@media (max-width: 900px) {
+    body {
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .wrapper {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 10px;
+        left: -100%; /* esconder fora da tela por padrão */
+        width: 90vw;
+        max-width: 260px;
+        height: calc(100vh - 20px);
+        transform: translateX(0);
+        visibility: hidden;
+        opacity: 0;
+        transition: left 0.25s ease, transform 0.25s ease, opacity 0.25s ease, visibility 0s 0.25s;
+        z-index: 100;
+        box-shadow: 2px 0 20px rgba(0,0,0,0.35);
+        background: var(--bg-sidebar);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .sidebar.open {
+        left: 10px;
+        transform: translateX(0);
+        visibility: visible;
+        opacity: 1;
+        transition: left 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    .sidebar.closed {
+        left: -100%;
+        transform: translateX(0);
+        visibility: hidden;
+        opacity: 0;
+        transition: left 0.25s ease, transform 0.25s ease, opacity 0.25s ease, visibility 0s 0.25s;
+    }
+
+    .sidebar-toggle {
+        display: block;
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        z-index: 120;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+
+    .sidebar.collapsed {
+        width: 280px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-top: 70px;
+        width: 100%;
+        min-height: calc(100vh - 70px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar-toggle:hover, .sidebar-toggle:active {
+        transform: scale(1.06);
+    }
+
+    .nav-links a {
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .nav-links a:active {
+        transform: scale(0.98);
+    }
+
+    .panic-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        gap: 10px;
+    }
+}
+
+
+/* Caixa de Notificação (Alerta Encaixado) */
+.logo-container {
+    padding: 18px;
+    margin: 0 15px 25px 15px;
+    min-height: 130px;
+    text-align: center;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+/* Cores dos Status de Alerta */
+.alert-danger {
+    border: 4px solid #8A1B29;
+    background-color: #fcebee;
+    color: #8A1B29;
+}
+
+.alert-warning {
+    border: 4px solid #f89737;
+    background-color: #fff9f1;
+    color: #cc7800;
+}
+
+.alert-success {
+    border: 4px solid #28a745;
+    background-color: #eafaf1;
+    color: #1a6b2d;
+}
+
+.status-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-content h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.status-details {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Navegação (Botões Laranjas) */
+.nav-links { list-style: none; padding: 0 15px; }
+.nav-links li { margin-bottom: 10px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-dark);
+    background-color: var(--bg-sidebar);
+    display: block;
+    padding: 12px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: 1px solid #ddd;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: var(--accent-color);
+    color: var(--text-light);
+    border-color: var(--accent-color);
+    transform: translateX(5px);
+}
+/* --- CONTEÚDO PRINCIPAL (Marrom) --- */
+.main-content {
+    flex: 1;
+    margin-left: 270px; /* reserva espaço para sidebar fixa */
+    background-color: var(--bg-main);
+    padding: 30px;
+    position: relative;
+    overflow-y: auto;
+    min-height: 100vh;
+    z-index: 1;
+}
+
+.main-content header h1 {
+    color: var(--text-light);
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+/* Sistema de Troca de Páginas */
+.page-content {
+    display: none;
+}
+
+.page-content.active {
+    display: block !important;
+}
+
+/* --- DASHBOARD GRID E CARDS --- */
+.dashboard-grid {
+    display: grid;
+    /* Ajustado para garantir que os cards caibam lado a lado corretamente */
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+    gap: 25px;
+    align-items: stretch; /* Faz todos os cards da mesma linha terem a mesma altura */
+}
+
+.chart-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    min-height: 400px; /* Altura mínima aumentada para caber todo o conteúdo */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Impede que o texto "vaze" para fora da borda arredondada */
+}
+
+.gauge-header {
+    margin-bottom: 15px;
+}
+
+.gauge-header h3 {
+    margin: 0;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-body-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza o conteúdo verticalmente */
+    align-items: center;     /* Centraliza horizontalmente */
+    gap: 15px;
+}
+
+/* --- MEDIDOR HUMANO (Boneco e Água) --- */
+.gauge-visual, .river-visual {
+    margin: 0 auto; /* Centraliza os gráficos dentro do card */
+}
+
+.person-img {
+    width: 90%;
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    z-index: 1;
+}
+
+.water-layer {
+    width: 100%;
+    height: 0%; /* Controlado pelo JS */
+    background-color: rgba(0, 123, 255, 0.5);
+    position: absolute;
+    bottom: 0;
+    z-index: 2;
+    transition: height 1s ease-in-out;
+}
+
+/* Linhas de referência no CSS */
+.reference-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 3;
+}
+
+.ref-line {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: rgba(0,0,0,0.15);
+    font-size: 0.7rem;
+    color: #666;
+    padding-left: 5px;
+}
+.ref-line.ref-head { top: 10%; border-top: 1px dashed rgba(255,0,0,0.3); color: #a00; }
+.ref-line.ref-knee { top: 75%; }
+
+.ref-line::after {
+    content: attr(data-depth);
+    position: absolute;
+    right: 5px;
+    font-weight: bold;
+}
+
+.gauge-body {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.depth-readout {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.depth-readout .unit {
+    font-size: 1.5rem;
+    font-weight: normal;
+    color: #888;
+}
+
+.risk-text {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.btn-simulate {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* --- MEDIDOR DO RIO --- */
+.river-visual {
+    width: 180px;
+    height: 360px;
+    background-color: #e0d7d0;
+    position: relative;
+    border-radius: 0 0 50px 50px;
+    border: 4px solid #8d6e63;
+    overflow: hidden;
+}
+
+.river-bank {
+    position: absolute;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    background-color: #a5d6a7;
+    z-index: 3;
+}
+.river-bank.left { left: 0; border-right: 2px solid #81c784; }
+.river-bank.right { right: 0; border-left: 2px solid #81c784; }
+
+.river-water {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(180deg, #4fc3f7 0%, #0288d1 100%);
+    z-index: 2;
+    transition: height 1.5s ease-in-out;
+}
+
+.flood-line {
+    position: absolute;
+    top: 30%;
+    width: 100%;
+    border-top: 3px dashed #ff1744;
+    z-index: 4;
+    text-align: center;
+}
+
+.flood-line span {
+    background: #ff1744;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+/* --- NOVOS CARTÕES CSS --- */
+
+/* Previsão de Chuva */
+.precip-readout {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.forecast-details, .chart-placeholder {
+    flex: 1;
+    margin-top: 15px;
+}
+
+/* Volume Acumulado */
+.acumulado-info {
+    text-align: center;
+}
+
+.acumulado-info .depth-readout {
+    font-size: 4rem; /* Tamanho de destaque */
+    line-height: 1;
+    margin: 10px 0;
+}
+
+/* Contatos de Emergência */
+.contacts-list {
+    list-style: none;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.contacts-list li {
+    margin-bottom: 10px;
+}
+
+.contacts-list li a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+/* Placeholders para Gráficos */
+.skeleton-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #eee;
+    border-radius: 8px;
+    color: #ccc;
+    background-color: #f8f9fa;
+}
+
+/* --- LEGENDA (Canto inferior direito) --- */
+.legend-card {
+    position: fixed; /* Mudado para fixed para não sumir ao rolar */
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background-color: #fff;
+    border: 3px solid var(--legend-border);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 100;
+}
+
+.legend-card h3 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.legend-card ul {
+    list-style: none;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* --- TEXT COLORS --- */
+.text-success { color: #28a745; }
+.text-warning { color: #f89737; }
+.text-danger { color: #dc3545; }
+
+/* --- RESPONSIVIDADE MÓVEL --- */
+@media (max-width: 900px) {
+    body {
+        padding: 0;
+    }
+
+    .wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+
+    .logo-container {
+        width: 100%;
+        margin: 0;
+    }
+
+    .nav-links {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .nav-links li {
+        width: 50%;
+        padding: 4px;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+        padding: 9px 10px;
+    }
+
+    .main-content {
+        width: 100%;
+        padding: 15px;
+        margin-top: 0;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .chart-card,
+    .section-box,
+    .report-box {
+        min-height: auto;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .panic-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+    }
+}
+
+/* --- ESTILOS PARA A PÁGINA DE NOTÍCIAS (INTEGRADA DE pagwesl.html) --- */
+.page-noticias * {
+    box-sizing: border-box;
+}
+
+.page-noticias {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    line-height: inherit;
+    height: auto;
+    overflow: visible;
+}
+
+.page-noticias header {
+    display: none; /* não duplicar header */
+}
+
+.page-noticias .logo { color: var(--accent-color); }
+
+.page-noticias .container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.page-noticias .status-grid,
+.page-noticias .main-layout {
+    background: transparent;
+}
+
+.page-noticias .report-box {
+    background: #4b3832; /* tom chocolate do mockup da imagem */
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.page-noticias .report-box h3 {
+    color: #f89737;
+}
+
+.page-noticias .report-box p,
+.page-noticias .report-box label {
+    color: #f2e1d7;
+}
+
+.page-noticias .report-box input,
+.page-noticias .report-box select {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.page-noticias .report-box input::placeholder,
+.page-noticias .report-box select::placeholder {
+    color: rgba(255,255,255,0.65);
+}
+
+.page-noticias .report-box .btn-submit {
+    background: #f89737;
+    color: #fff;
+}
+
+.page-noticias .section-box {
+    background: var(--bg-card); /* caixa branca, igual às outras páginas */
+    color: var(--text-main);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.page-noticias .stat-card,
+.page-noticias .report-box {
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.page-noticias .status-grid {
+    gap: 1rem;
+}
+
+.page-noticias .panic-bar {
+    display: none !important; /* remover botões bombeiros/defesa civil na página histórico */
+}
+
+.page-noticias table,
+.page-noticias th,
+.page-noticias td {
+    background: transparent;
+}
+
+.page-noticias .box-header {
+    background: #fff;
+    border-radius: 12px 12px 0 0;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+}
+
+.page-noticias .stat-card {
+    border-bottom: 5px solid var(--accent-color);
+}
+
+.page-noticias .news-item small,
+.page-noticias .news-item p {
+    font-family: inherit;
+}
+
+.page-noticias .btn-submit {
+    background: var(--accent-color);
+}
+
+.page-noticias table,
+.page-noticias th,
+.page-noticias td {
+    background: transparent;
+}
+
+/* Remover duplicação de cor de fundo no modo notícias */
+.page-noticias .main-layout,
+.page-noticias section,
+.page-noticias aside {
+    background: transparent;
+}
+
+/* Botões com estilo unificado */
+.nav-links a.active {
+    background-color: var(--accent-color);
+    color: var(--text-light);
+}
+
+}
+
+/* Navegação Superior de Conexão */
+.top-nav {
+    background: rgba(0,0,0,0.15);
+    padding: 12px 5%;
+}
+.top-nav a {
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+/* header */
+.page-noticias header {
+    background: var(--bg-card);
+    padding: 1.2rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.logo { font-size: 1.4rem; font-weight: 700; color: var(--primary-orange); }
+.logo span { color: var(--text-main); }
+
+.container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
+
+/* Grade de Status Superior */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-bottom: 5px solid var(--primary-orange);
+}
+
+.stat-card h3 { font-size: 0.75rem; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+.stat-card .value { font-size: 1.4rem; font-weight: 700; margin-top: 5px; color: var(--text-main); }
+
+/* Layout Principal */
+.main-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.section-box {
+    background: var(--bg-card);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.box-header {
+    padding: 1.2rem;
+    background: #fdfaf6;
+    font-weight: 700;
+    color: var(--primary-orange);
+    border-bottom: 1px solid #f1f1f1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Tabela Responsiva */
+table { width: 100%; border-collapse: collapse; min-width: 400px; }
+th { background: #fafafa; padding: 1rem; text-align: left; font-size: 0.75rem; color: #aaa; text-transform: uppercase; }
+td { padding: 1.2rem; border-bottom: 1px solid #f9f9f9; font-size: 0.95rem; }
+
+.badge { padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+.badge.danger { background: #fee2e2; color: #b91c1c; }
+.badge.warning { background: #fef3c7; color: #b45309; }
+.badge.success { background: #dcfce7; color: #15803d; }
+
+/* Feed de Notícias */
+.news-item { padding: 1.2rem; border-bottom: 1px solid #eee; }
+.news-item small { color: var(--primary-orange); font-weight: 700; font-size: 0.7rem; }
+.news-item p { margin-top: 5px; font-size: 0.9rem; color: #555; }
+
+/* Formulário Lateral */
+.report-box {
+    background: var(--text-main);
+    color: white;
+    padding: 1.8rem;
+    border-radius: 15px;
+    position: sticky;
+    top: 100px;
+}
+.report-box h3 { color: var(--primary-orange); margin-bottom: 15px; }
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 20px 0;
+    border-radius: 8px;
+    border: none;
+    background: #5a4f44;
+    color: white;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary-orange);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-submit:hover { background: #d87d21; transform: scale(1.02); }
+
+/* Barra de Emergência Inferior */
+.panic-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg-card);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.panic-link {
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .main-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .report-box {
+        position: relative;
+        top: 0;
+        margin-top: 2rem;
+        order: 2;
+    }
+
+    section {
+        order: 1;
+    }
+
+    .panic-bar {
+        flex-direction: column;
+        padding: 10px;
+    }
+}
