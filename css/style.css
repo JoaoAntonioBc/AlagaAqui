@@ -516,6 +516,129 @@ body {
     background-color: #f8f9fa;
 }
 
+.data-source {
+    color: #777;
+    font-size: 0.78rem;
+    margin-top: 8px;
+}
+
+.forecast-bars {
+    width: 100%;
+    min-height: 140px;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(12px, 1fr));
+    align-items: end;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.forecast-bar {
+    min-height: 18px;
+    border-radius: 5px 5px 2px 2px;
+    background: linear-gradient(180deg, #4fc3f7 0%, #0288d1 100%);
+    position: relative;
+}
+
+.forecast-bar span {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #666;
+    font-size: 0.68rem;
+    white-space: nowrap;
+}
+
+.monthly-bars {
+    grid-template-columns: repeat(10, minmax(14px, 1fr));
+}
+
+.map-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 0.85fr);
+    gap: 20px;
+}
+
+.map-card {
+    min-height: 560px;
+    padding: 0;
+}
+
+#flood-map {
+    width: 100%;
+    min-height: 560px;
+    border-radius: 12px;
+}
+
+.map-side-panel {
+    min-height: 560px;
+    gap: 16px;
+}
+
+.risk-list {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+}
+
+.risk-list.compact {
+    margin-top: 14px;
+}
+
+.risk-item {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    padding: 14px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.risk-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 5px;
+}
+
+.risk-dot.danger { background: var(--danger); }
+.risk-dot.warning { background: var(--warning); }
+.risk-dot.success { background: var(--success); }
+
+.risk-item h4 {
+    margin: 0 0 4px 0;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.risk-item p {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.35;
+}
+
+.points-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.form-feedback {
+    min-height: 20px;
+    margin-top: 10px;
+    color: #dcfce7;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 /* --- LEGENDA (Canto inferior direito) --- */
 .legend-card {
     position: fixed; /* Mudado para fixed para não sumir ao rolar */
@@ -747,8 +870,6 @@ body {
     color: var(--text-light);
 }
 
-}
-
 /* Navegação Superior de Conexão */
 .top-nav {
     background: rgba(0,0,0,0.15);
@@ -900,6 +1021,18 @@ input, select {
     .main-layout {
         display: flex;
         flex-direction: column;
+    }
+
+    .map-layout,
+    .points-header {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-card,
+    .map-side-panel,
+    #flood-map {
+        min-height: 420px;
     }
 
     .report-box {
