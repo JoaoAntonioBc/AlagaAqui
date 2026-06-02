@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Painel de monitoramento de chuva, risco de alagamento e pontos críticos em Sorocaba.">
     <title>Monitoramento Alagamentos - Sorocaba</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,7 +23,7 @@
             </div>
 
             <ul class="nav-links">
-                <li><a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i> <span>Dados Metereologicos</span></a></li>
+                <li><a href="#" class="nav-item active" data-target="dashboard"><i class="fa-solid fa-chart-line"></i> <span>Dados Meteorológicos</span></a></li>
                 <li><a href="#" class="nav-item" data-target="volume-detalhado"><i class="fa-solid fa-circle-info"></i> <span>Informações</span></a></li>
                 <li><a href="#" class="nav-item" data-target="mapa"><i class="fa-solid fa-map-location-dot"></i> <span>Mapa em Tempo Real</span></a></li>
                 <li><a href="#" class="nav-item" data-target="historico"><i class="fa-solid fa-users"></i> <span>Comunidade</span></a></li>
@@ -104,12 +106,13 @@
                         <div class="card-body-content">
                             <div class="weather-info">
                                 <div class="precip-readout">
-                                    <span class="precip-value">85</span><span class="unit">mm</span>
+                                    <span id="precip-24h" class="precip-value">--</span><span class="unit">mm</span>
                                 </div>
-                                <p class="risk-text text-danger">Chuva muito forte prevista.</p>
+                                <p id="weather-risk-text" class="risk-text text-warning">Carregando previsão da Open-Meteo...</p>
+                                <p id="weather-updated" class="data-source">Fonte: Open-Meteo</p>
                             </div>
-                            <div class="forecast-details skeleton-placeholder">
-                                <p>Gráfico de barras de hora em hora...</p>
+                            <div id="forecast-bars" class="forecast-bars" aria-label="Previsão de chuva por hora">
+                                <p>Carregando gráfico de chuva...</p>
                             </div>
                         </div>
                     </div>
@@ -122,12 +125,12 @@
                             <div class="acumulado-info">
                                 <p>Volume de chuva em Sorocaba</p>
                                 <div class="depth-readout text-info">
-                                    <span class="depth-value">150</span><span class="unit">mm</span>
+                                    <span id="monthly-rain" class="depth-value">--</span><span class="unit">mm</span>
                                 </div>
-                                <p class="risk-text text-warning">Próximo à média histórica (160mm).</p>
+                                <p id="monthly-rain-status" class="risk-text text-warning">Somando dados observados da Open-Meteo.</p>
                             </div>
-                            <div class="chart-placeholder skeleton-placeholder">
-                                <p>Gráfico de linha/barras aqui...</p>
+                            <div id="monthly-bars" class="forecast-bars monthly-bars" aria-label="Chuva diária do mês">
+                                <p>Carregando acumulado mensal...</p>
                             </div>
                         </div>
                     </div>
@@ -196,15 +199,15 @@
                     <div class="status-grid">
                         <div class="stat-card">
                             <h3>🌊 Nível do Rio</h3>
-                            <div class="value">0,85m (Normal)</div>
+                            <div id="community-river-level" class="value">--</div>
                         </div>
                         <div class="stat-card" style="border-color: var(--danger);">
                             <h3>🚫 Pontos Interditados</h3>
-                            <div class="value">2 Locais</div>
+                            <div id="community-blocked-count" class="value">--</div>
                         </div>
                         <div class="stat-card">
                             <h3>☔ Previsão Próximas 24h</h3>
-                            <div class="value">25mm (Forte)</div>
+                            <div id="community-rain-24h" class="value">--</div>
                         </div>
                     </div>
 
@@ -263,10 +266,10 @@
                                 <h3>⚠ Novo Reporte</h3>
                                 <p style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 10px;">Informe a situação atual de sua rua.</p>
                                 
-                                <label style="font-size: 0.8rem;">Onde é o problema?</label>
+                                <label for="input-local-noticias" style="font-size: 0.8rem;">Onde é o problema?</label>
                                 <input type="text" id="input-local-noticias" placeholder="Ex: Av. Dom Aguirre">
                                 
-                                <label style="font-size: 0.8rem;">Qual o estado da via?</label>
+                                <label for="select-gravidade-noticias" style="font-size: 0.8rem;">Qual o estado da via?</label>
                                 <select id="select-gravidade-noticias">
                                     <option value="success">Vias Liberadas</option>
                                     <option value="warning">Atenção (Água Subindo)</option>
@@ -274,6 +277,7 @@
                                 </select>
                                 
                                 <button class="btn-submit" onclick="adicionarReporteNoticias()">PUBLICAR ALERTA</button>
+                                <p id="report-feedback" class="form-feedback" role="status" aria-live="polite"></p>
                             </div>
                         </aside>
                     </div>
@@ -291,8 +295,15 @@
                     <h1 style="color: white;">Mapa em Tempo Real</h1>
                     <p style="color: white;">Visualização das áreas afetadas</p>
                 </header>
-                <div class="chart-card" style="text-align: center; padding: 50px;">
-                    <p>Mapa interativo em desenvolvimento...</p>
+                <div class="map-layout">
+                    <div class="chart-card map-card">
+                        <div id="flood-map" aria-label="Mapa interativo de pontos críticos em Sorocaba"></div>
+                    </div>
+                    <aside class="chart-card map-side-panel">
+                        <h3><i class="fa-solid fa-location-crosshairs"></i> Camadas do mapa</h3>
+                        <p id="map-weather-summary">Carregando chuva prevista para Sorocaba...</p>
+                        <div id="map-risk-list" class="risk-list compact"></div>
+                    </aside>
                 </div>
             </div>
 
@@ -301,14 +312,22 @@
                     <h1 style="color: white;">Pontos Críticos</h1>
                     <p style="color: white;">Locais de maior risco</p>
                 </header>
-                <div class="chart-card" style="text-align: center; padding: 50px;">
-                    <p>Lista de pontos críticos em desenvolvimento...</p>
+                <div class="chart-card">
+                    <div class="points-header">
+                        <div>
+                            <h3>Vias monitoradas</h3>
+                            <p id="points-weather-context">Atualizando contexto climático...</p>
+                        </div>
+                        <span id="points-updated" class="data-source">Fonte: Open-Meteo + reportes locais</span>
+                    </div>
+                    <div id="critical-points-list" class="risk-list"></div>
                 </div>
             </div>
 
         </main>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
